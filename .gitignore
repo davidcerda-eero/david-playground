@@ -1,0 +1,128 @@
+.jvmopts
+.ivy2
+project/target
+target
+tmp
+/.settings
+/.cache
+/.worksheet
+/*.eml
+/project/activator*sbt
+secrets.conf
+/conf/secrets
+/native
+modules/native
+.DS_Store
+modules/actorcluster/akka-diagnostics/
+akka-diagnostics
+# XXX should probably be modules/*/project/
+modules/noderealtime/project/
+modules/evorunner/project/
+*telemetry.conf
+build/
+amazon_artifacts/
+.pb/
+.python-version
+.attach_pid*
+
+# Logging
+akka.log.*
+play.log.*
+play.1.log.zip
+logs
+.sbt
+# produced by local runs of chef
+/nodes
+
+
+### https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
+
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
+
+*.iml
+
+## Directory-based project format:
+.idea/
+# if you remove the above rule, at least ignore the following:
+
+# User-specific stuff:
+# .idea/workspace.xml
+# .idea/tasks.xml
+# .idea/dictionaries
+
+# Sensitive or high-churn files:
+# .idea/dataSources.ids
+# .idea/dataSources.xml
+# .idea/sqlDataSources.xml
+# .idea/dynamic.xml
+# .idea/uiDesigner.xml
+
+# Gradle:
+# .idea/gradle.xml
+# .idea/libraries
+
+# Mongo Explorer plugin:
+# .idea/mongoSettings.xml
+
+## File-based project format:
+*.ipr
+*.iws
+
+## Plugin-specific files:
+
+# IntelliJ
+out/
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# JIRA plugin
+atlassian-ide-plugin.xml
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+
+.virtualenv
+.clvenv
+*.pyc
+*.egg-info
+.mypy_cache
+
+# vim
+.vim
+*.swp
+
+# emacs
+*~
+
+# tags
+.tags
+
+# custom temp file for files converted from json
+*.translation
+
+# Some cl commands care about read these
+all_projects.txt
+cloud_local_projects.txt
+
+# Metals and VSCode
+.bloop/
+.metals/
+project/.bloop/
+project/project/.bloop/
+project/metals.sbt
+
+build/
+.gradle/
+
+.bsp
+
+.vscode/
+
+dev/geoip/GeoIP2-City.mmdb
+dev/geoip/GeoIP2-ISP.mmdb
+*.csv
+*.txt
+*.sql
