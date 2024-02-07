@@ -1,22 +1,22 @@
 package eero.davidplayground.stripe
 
-import com.google.gson.{JsonElement, JsonNull}
-import com.stripe.exception.{InvalidRequestException, RateLimitException}
-import com.stripe.model.{Card, Coupon, Customer, Event, EventCollection, HasId, Invoice, Price, PriceCollection, StripeCollection, Subscription, SubscriptionSchedule, Token}
-import com.stripe.net.ApiResource
-import com.stripe.param.SubscriptionScheduleUpdateParams.EndBehavior
-import com.stripe.param.{EventListParams, InvoiceListParams, PriceListParams, SubscriptionScheduleCreateParams, SubscriptionScheduleUpdateParams, SubscriptionUpdateParams}
-import eero.common.stripe.StripeWebhookEventHelper
+import eero.common.stripe.data.{StripeCoupon, StripeCustomer, StripeDuration, StripePhase, StripeSubscription}
 import eero.common.stripe.data.StripePhase.toPhaseUpdateParam
-import eero.common.stripe.data.{StripeCoupon, StripeCustomer, StripeDuration, StripePhase}
+import eero.common.stripe.StripeWebhookEventHelper
 import eero.common.time.InstantRange
-import eero.core.Identity.wrapIdentity
 import eero.core.concurrent.FOption
+import eero.core.Identity.wrapIdentity
 import eero.data.i18n.CountryCode
 import eero.data.id.UserId
 import eero.data.premium.UserSubscriptionStatus
 import eero.premiumsubscriptionsapi.data.{BillingAddress, StripeWebhookEvent}
 
+import com.google.gson.{JsonElement, JsonNull}
+import com.stripe.exception.{InvalidRequestException, RateLimitException}
+import com.stripe.model.{Card, Coupon, Customer, Event, EventCollection, HasId, Invoice, Price, PriceCollection, StripeCollection, Subscription, SubscriptionSchedule, Token}
+import com.stripe.net.ApiResource
+import com.stripe.param.{EventListParams, InvoiceListParams, PriceListParams, SubscriptionScheduleCreateParams, SubscriptionScheduleUpdateParams, SubscriptionUpdateParams}
+import com.stripe.param.SubscriptionScheduleUpdateParams.EndBehavior
 import java.lang.{Boolean => JavaBoolean}
 import java.time.{Duration, Instant}
 import scala.concurrent.{ExecutionContext, Future}
@@ -112,6 +112,47 @@ object StripeHelper {
   ): SubscriptionSchedule = {
     {
       SubscriptionSchedule.retrieve(subscriptionScheduleId)
+    }
+  }
+
+  def subscribe(
+    planId: String,
+    noTrial: Boolean,
+    optCoupon: Option[String],
+    // This declaration is necessary to ensure that a Java Boolean is passed rather than a Scala one
+    payImmediately: JavaBoolean = false,
+    metadataOpt: Option[Map[String, Object]] = None,
+    customerId: String
+  )(implicit ec: ExecutionContext): Future[StripeSubscription] = {
+    val baseParams = Map[String, Object](
+      "plan" -> planId,
+      "customer" -> customerId,
+      "pay_immediately" -> payImmediately,
+      "trial_from_plan" -> JavaBoolean.valueOf(!noTrial)
+    )
+
+    val subParams = if (noTrial) {
+      baseParams ++ Map[String, Object]("trial_end" -> "now")
+    } else {
+      baseParams
+    }
+
+    val subParamsWithCoupon = subParams.applyOpt(optCoupon) {
+      case (params, coupon) =>
+        params ++ Map[String, Object]("coupon" -> coupon)
+    }
+
+    val subParamsWithMetadata = subParamsWithCoupon.applyOpt(metadataOpt) {
+      case (params, metadata) =>
+        params ++ Map[String, Object]("metadata" -> metadata.asJava)
+    }
+
+    val preexistingSubscriptions = StripeCustomer(Customer.retrieve(customerId)).subscriptions
+
+    if (preexistingSubscriptions.isEmpty) {
+      makeStripeCall(Subscription.create(subParamsWithMetadata.asJava), false).map(StripeSubscription(_))
+    } else {
+      Future.successful(preexistingSubscriptions.head)
     }
   }
 

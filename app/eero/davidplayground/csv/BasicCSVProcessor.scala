@@ -14,7 +14,7 @@ trait BasicCSVProcessor extends CSVRowProcessor {
   private val dataFullPath = {
     val default = "/Users/cerdadav/eero/cloud_playground/modules/davidplayground/test/eero/davidplayground/CSV_Files/"
     val elements = if (workingDirectory.startsWith("/")) {
-      Seq(data, workingDirectory, dataFileName)
+      Seq(workingDirectory, data, dataFileName)
     } else {
       Seq(default, data, workingDirectory, dataFileName)
     }
@@ -36,7 +36,10 @@ trait BasicCSVProcessor extends CSVRowProcessor {
 
   val writeFileName: Option[String]
   private val optCsvWriter: Option[BasicWriter] =
-    writeFileName.map(file => new BasicWriter(file, result + workingDirectory))
+    writeFileName.map {
+      case file if workingDirectory.startsWith("/") => new BasicWriter(file, workingDirectory + "/" + result)
+      case file => new BasicWriter(file, result + workingDirectory)
+    }
 
   def write(statement: String): Unit = {
     optCsvWriter.map(_.write(statement))

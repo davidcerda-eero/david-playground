@@ -28,6 +28,7 @@ class BasicWriter(
   }
 
   private def createWrite(filename: String): BufferedWriter = {
+    println(filename)
     val file = new File(filename)
     file.createNewFile()
     new BufferedWriter(new FileWriter(file))
