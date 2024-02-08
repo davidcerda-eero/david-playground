@@ -16,6 +16,13 @@ class BasicWriter(
 
   private val bufferWriter = createWrite(writeFilePath)
 
+  def writeCSV(csv: CSVRowProcessor): Unit = {
+    if (!csv.isEmpty) {
+      writeRow(csv.head.getHeaderString())
+      csv.rows.map(writeRow(_))
+    }
+
+  }
   def writeRow(row: Iterable[String]): Unit = {
     bufferWriter.write(row.mkString(",") + "\n")
   }

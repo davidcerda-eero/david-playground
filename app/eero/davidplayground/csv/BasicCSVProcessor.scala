@@ -21,17 +21,18 @@ trait BasicCSVProcessor extends CSVRowProcessor {
     PathHelper.standardizePath(elements: _*)
   }
 
-  override private[csv] val (headers: Vector[String], rows: IndexedSeq[CSVRow]) = {
+  override private[csv] val (headers: Map[String, Int], rows: Vector[CSVRow]) = {
     val bufferedSource = Source.fromFile(dataFullPath)
     val csvLines = ArrayBuffer[CSVRow]()
     val lines = bufferedSource.getLines()
-    val headers = lines.next().split(",").map(_.trim).toVector
+    val headers = lines.next().split(",").map(_.trim).zipWithIndex.toMap
     for (line <- lines) {
-      val row = line.split(",").map(_.trim)
+      val row = line.split(",", -1).map(_.trim)
+
       csvLines += new CSVRow(headers, row.toVector)
     }
     bufferedSource.close()
-    (headers, csvLines.toIndexedSeq)
+    (headers, csvLines.toVector)
   }
 
   val writeFileName: Option[String]
@@ -47,6 +48,10 @@ trait BasicCSVProcessor extends CSVRowProcessor {
 
   def writeRow(row: String): Unit = {
     optCsvWriter.map(_.writeRow(row))
+  }
+
+  def writeThisCSV(): Unit = {
+    optCsvWriter.map(_.writeCSV(this))
   }
 
   def closeFile(): Unit = {

@@ -15,6 +15,7 @@ object INC629Backfill {
   def main(args: Array[String]): Unit = {
 
     println(s"${Console.GREEN}Started at ${ZonedDateTime.now(ZoneId.systemDefault())}${Console.WHITE_B}")
+
     val system = ActorSystem.create()
     implicit val context: MessageDispatcher = system.dispatchers.lookup("contexts.stripe")
     val subscriptionsToGrantPlus = new CSVProcessor(
@@ -39,6 +40,7 @@ object INC629Backfill {
             )
           }
         subscriptionsToGrantPlus.closeFile()
+
         println(s"${Console.GREEN}Finshed at ${ZonedDateTime.now((ZoneId.systemDefault()))}")
       case Failure(exception) => throw exception
     }
