@@ -123,6 +123,10 @@ build/
 
 dev/geoip/GeoIP2-City.mmdb
 dev/geoip/GeoIP2-ISP.mmdb
+
+# Davidplayground ignored files and directories
 *.csv
 *.txt
 *.sql
+app/eero/davidplayground/stripe/test_files
+app/eero/davidplayground/stripe/scripts
