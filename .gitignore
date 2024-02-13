@@ -129,4 +129,4 @@ dev/geoip/GeoIP2-ISP.mmdb
 *.txt
 *.sql
 app/eero/davidplayground/stripe/test_files
-app/eero/davidplayground/stripe/scripts
+scripts
