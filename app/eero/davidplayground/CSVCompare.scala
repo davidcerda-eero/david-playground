@@ -15,7 +15,7 @@ object CSVCompare {
       lazy val values: IndexedSeq[IneligibilityReason] = findValues
 
       case object NoNetwork extends IneligibilityReason
-      case object NoAssociateOwner extends IneligibilityReason
+      case object NoAssociatedUserWithOwnedNetwork extends IneligibilityReason
 
       case object BusinessOwner extends IneligibilityReason
       case object IspRole extends IneligibilityReason
@@ -60,7 +60,7 @@ object CSVCompare {
       val customerAccountId = row("customer_account_id")
       val partner_account_id = row("partner_account_id")
       val productSerial = row("product_serial")
-      val noNetwork = row("network_id").isEmpty
+      val networkId = row("network_id")
       val networkRole = row("network_role")
 //      val networkIsBusiness = row("network_customer_type") == "Business"
       val userRole = UserRole.fromString(row("user_role"))
@@ -75,10 +75,10 @@ object CSVCompare {
 
       val ineligibilityReason = if (partner_account_id.isEmpty || customerAccountId.isEmpty) {
         Option.empty[IneligibilityReason]
-      } else if (noNetwork)
+      } else if (networkId.isEmpty)
         Option(IneligibilityReason.NoNetwork)
       else if (networkRole != "network-owner") {
-        Option(IneligibilityReason.NoAssociateOwner)
+        Option(IneligibilityReason.NoAssociatedUserWithOwnedNetwork)
       } else if (userId.isEmpty) {
         Option(IneligibilityReason.NoUser)
       } else if (isBusinessRole) {
@@ -99,14 +99,14 @@ object CSVCompare {
       ineligibilityReason.map { reason =>
         (
           partner_account_id.toInt,
-          s"$partner_account_id,$customerAccountId,$productSerial,$networkRole,$userId,$userRole,$userSubId,$planId,$tier,$orgId,$reason",
+          s"$partner_account_id,$customerAccountId,$productSerial,$networkId,$networkRole,$userId,$userRole,$userSubId,$planId,$tier,$orgId,$reason",
           reason
         )
       }
     }
 
     writerProcessed.writeRow(
-      "partner_account_id,customer_account_id,product_serial,network_role,user_id,user_role,user_sub_id,plan_id,tier,org_id,ineligibility_reason"
+      "partner_account_id,customer_account_id,product_serial,networkId,network_role,user_id,user_role,user_sub_id,plan_id,tier,org_id,ineligibility_reason"
     )
     processedRows.flatten.map(row => writerProcessed.writeRow(row._2))
     writerProcessed.closeFile()
