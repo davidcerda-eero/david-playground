@@ -130,4 +130,4 @@ dev/geoip/GeoIP2-ISP.mmdb
 *.sql
 app/eero/davidplayground/stripe/test_files
 scripts
-CSV_files
+danta-and-results
