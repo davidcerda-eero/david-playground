@@ -1,24 +1,5 @@
 package eero.davidplayground.csv
 
-class CSVError(message: String) extends Exception(message)
-
-sealed trait CSVThrowable {
-  protected val message: String
-  def throwThis(): Unit = {
-    throw new CSVError(message)
-  }
-}
-
-case class ColumnHeaderSizeNotEqualToValueSize(columnSize: Int, valueSize: Int) extends CSVThrowable {
-  protected val message = s"Header number $columnSize does not equal number of values: $valueSize"
-}
-case class ColumnHeaderDoesNotExist(colName: String) extends CSVThrowable {
-  protected val message = s"Provided column name $colName was not found"
-}
-case class CSVProcessorsHaveDifferentNumberOfRows(theseRows: Int, thoseRows: Int) extends CSVThrowable {
-  protected val message = s"Row number $theseRows does not equal row number: $theseRows"
-}
-
 trait CSVRowCollection extends IndexedSeq[CSVRow] {
   private[csv] val rows: Vector[CSVRow]
   private[csv] val headers: Map[String, Int]
@@ -33,14 +14,14 @@ protected[csv] class CSVRow(private[csv] val headers: Map[String, Int], private[
   extends IndexedSeq[String] {
 
   if (headers.size != values.size) {
-    ColumnHeaderSizeNotEqualToValueSize(headers.size, values.size).throwThis()
+    throw ColumnHeaderSizeNotEqualToValueSize(headers.size, values.size)
   }
 
   def apply(int: Int): String = values(int)
 
   def apply(header: String): String = {
     val idx = indexOf(header)
-    if (idx == -1) ColumnHeaderDoesNotExist(header).throwThis()
+    if (idx == -1) throw ColumnHeaderDoesNotExist(header)
     values(idx)
   }
 
@@ -178,6 +159,7 @@ class CSVRowProcessor(private[csv] val rows: Vector[CSVRow] = Vector.empty) exte
   def printRows(): Unit = {
     rows.foreach(println(_))
   }
+  // scalastyle:on regex
 
   def emptyRow(): CSVRow = CSVRow0Values(headers)
 
@@ -187,7 +169,7 @@ class CSVRowProcessor(private[csv] val rows: Vector[CSVRow] = Vector.empty) exte
       that
     } else {
       if (this.length != that.length) {
-        CSVProcessorsHaveDifferentNumberOfRows(this.length, that.length).throwThis()
+        throw CSVProcessorsHaveDifferentNumberOfRows(this.length, that.length)
       }
       new CSVRowProcessor(this.rows.zip(that).map { case (a, b) => a ++ b })
     }
@@ -224,7 +206,7 @@ class CSVRowProcessor(private[csv] val rows: Vector[CSVRow] = Vector.empty) exte
 
   private def getColumnIndex(colName: String): Int = {
     val idx = headers(colName)
-    if (idx == -1) ColumnHeaderDoesNotExist(colName).throwThis()
+    if (idx == -1) throw ColumnHeaderDoesNotExist(colName)
     idx
   }
 
@@ -316,6 +298,8 @@ class CSVRowProcessor(private[csv] val rows: Vector[CSVRow] = Vector.empty) exte
 
     new CSVRowProcessor(newRows.toVector)
   }
+
+//  def separateDuplicates(columns: String*): (CSVRowProcessor, CSVRowProcessor) = {}
 }
 
 object CSVRowProcessor {
