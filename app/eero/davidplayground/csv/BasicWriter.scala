@@ -4,12 +4,12 @@ import java.io.{BufferedWriter, File, FileWriter}
 
 class BasicWriter(
   writeFileName: String,
-  workingDirectory: String = "result/"
+  workingDirectory: String = "results/"
 ) {
 
   private val writeFilePath = {
     val default =
-      "/Users/cerdadav/eero/cloud_playground/modules/davidplayground/test/eero/davidplayground/CSV_Files"
+      "/Users/cerdadav/eero/cloud_playground/modules/davidplayground/test/data-and-results"
     if (workingDirectory.startsWith("/")) PathHelper.standardizePath(workingDirectory, writeFileName)
     else PathHelper.standardizePath(default, workingDirectory, writeFileName)
   }

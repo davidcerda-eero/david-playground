@@ -5,14 +5,13 @@ import scala.io.Source
 
 trait BasicCSVProcessor extends CSVRowProcessor {
   val dataFileName: String
-  val workingDirectory: String =
-    "/Users/cerdadav/eero/cloud_playground/modules/davidplayground/test/eero/davidplayground/CSV_Files/"
+  val workingDirectory: String = "/Users/cerdadav/eero/cloud_playground/modules/davidplayground/test/data-and-results"
 
   val data: String = "data/"
-  val result: String = "result/"
+  val result: String = "results/"
 
   private val dataFullPath = {
-    val default = "/Users/cerdadav/eero/cloud_playground/modules/davidplayground/test/eero/davidplayground/CSV_Files/"
+    val default = "/Users/cerdadav/eero/cloud_playground/modules/davidplayground/test/data-and-results"
     val elements = if (workingDirectory.startsWith("/")) {
       Seq(workingDirectory, data, dataFileName)
     } else {
